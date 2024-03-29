@@ -268,19 +268,21 @@ def _print_result(_result, _java=True):
             print("\t\tJavaSource code:")
             print("{:s}".format(base64.b64decode(_aa['java_b64'])))
 
-    results = list(_result.items())
-    new_results = results[2:]
-    _result = dict(new_results)
-    for _, result in _result.items():
-        for _custom in result:
-            _class_name = _translate_class_name(_custom['class'].get_name())
-            if _custom['xref'] != None:
+    if len(_result['onreceivedsslerror']) > 0:
+        if len(_result['onreceivedsslerror']) == 1:
+            print("App instantiates OnReceivedSSLError:")
+        elif len(_result['onreceivedsslerror']) > 1:
+            print("App instantiates {:d} OnReceivedSSLError".format(len(_result['onreceivedsslerror'])))
+
+        for _or in _result['onreceivedsslerror']:
+            _class_name = _translate_class_name(_or['class'].get_name())
+            if _or['xref'] is None:
                 for _ref in _aa['xref']:
                     print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
-            if _custom['java_b64']:
+            if _or['java_b64']:
                 print("\t\tJavaSource code:")
-                print(f"{base64.b64decode(_custom['java_b64']).decode()}")
-    
+                print(f"{base64.b64decode(_or['java_b64']).decode()}")
+
 
 def _xml_result(_a, _result):
     from xml.etree.ElementTree import Element, SubElement, tostring, dump
@@ -385,7 +387,7 @@ def _store_java(_vm, _args):
 
     for _class in _vm.get_classes():
         try:
-            _ms = decompile.DvClass(_class, _vmx)
+            _ms = DvClass(_class, _vmx)
             _ms.process()
             _f = _file_name(_class.get_name(), _args.storejava)
             _ensure_dir(_f)
