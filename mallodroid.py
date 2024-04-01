@@ -122,11 +122,12 @@ def _check_trust_manager(_method, _vm, _vmx):
     _insecure_socket_factory = []
 
     if _has_signature(_method, [_check_server_trusted]):
-        _class = _vm.get_class(_method.get_class_name())
-        if _class_implements_interface(_class, _trustmanager_interfaces):
-            _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-            _empty = _returns_true(_method) or _returns_void(_method)
-            _custom_trust_manager.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
+        _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
+        for _class in _classes:
+            if _class_implements_interface(_class, _trustmanager_interfaces):
+                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                _empty = _returns_true(_method) or _returns_void(_method)
+                _custom_trust_manager.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
     if _instantiates_get_insecure_socket_factory(_method):
         _class = _vm.get_class(_method.get_class_name())
         _java_b64, _xref = _get_javab64_xref(_class, _vmx)
@@ -146,15 +147,17 @@ def _check_hostname_verifier(_method, _vm, _vmx):
     _allow_all_hostname_verifier = []
 
     if _has_signature(_method, [_verify_string_sslsession, _verify_string_x509cert, _verify_string_sslsocket, _verify_string_subj_alt]):
-        _class = _vm.get_class(_method.get_class_name())
-        if _class_implements_interface(_class, _verifier_interfaces) or _class_extends_class(_class, _verifier_classes):
-            _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-            _empty = _returns_true(_method) or _returns_void(_method)
-            _custom_hostname_verifier.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
+        _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
+        for _class in _classes:
+            if _class_implements_interface(_class, _verifier_interfaces) or _class_extends_class(_class, _verifier_classes):
+                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                _empty = _returns_true(_method) or _returns_void(_method)
+                _custom_hostname_verifier.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
     if _instantiates_allow_all_hostname_verifier(_method):
-        _class = _vm.get_class(_method.get_class_name())
-        _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-        _allow_all_hostname_verifier.append({'class' : _class, 'method' : _method, 'java_b64' : _java_b64})
+        _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
+        for _class in _classes:
+            _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+            _allow_all_hostname_verifier.append({'class' : _class, 'method' : _method, 'java_b64' : _java_b64})
 
     return _custom_hostname_verifier, _allow_all_hostname_verifier
 
@@ -219,11 +222,12 @@ def _print_result(_result, _java=True):
             print("\tCustom TrustManager is implemented in class {:s}".format(_translate_class_name(_class_name)))
             if _tm['empty']:
                 print("\tImplements naive certificate check. This TrustManager breaks certificate validation!")
-            for _ref in _tm['xref']:
-                print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
-            if _java:
+            if _tm['xref'] is not None:
+                for _ref in _tm['xref']:
+                    print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
+            if _tm['java_b64']:
                 print("\t\tJavaSource code:")
-                print("{:s}".format(base64.b64decode(_tm['java_b64'])))
+                print(f"{base64.b64decode(_tm['java_b64']).decode()}")
 
     if len(_result['insecuresocketfactory']) > 0:
         if len(_result['insecuresocketfactory']) == 1:
@@ -234,9 +238,9 @@ def _print_result(_result, _java=True):
         for _is in _result['insecuresocketfactory']:
             _class_name = _translate_class_name(_is['class'].get_name())
             print("\tInsecure SSLSocketFactory is instantiated in {:s}->{:s}".format(_class_name, _is['method'].get_name()))
-            if _java:
+            if _is['java_b64']:
                 print("\t\tJavaSource code:")
-                print("{:s}".format(base64.b64decode(_is['java_b64'])))
+                print(f"{base64.b64decode(_is['java_b64']).decode()}")
 
     if len(_result['customhostnameverifier']) > 0:
         if len(_result['customhostnameverifier']) == 1:
@@ -249,11 +253,12 @@ def _print_result(_result, _java=True):
             print("\tCustom HostnameVerifiers is implemented in class {:s}".format(_translate_class_name(_class_name)))
             if _hv['empty']:
                 print("\tImplements naive hostname verification. This HostnameVerifier breaks certificate validation!")
-            for _ref in _tm['xref']:
-                print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
-            if _java:
+            if _tm['xref'] is not None:
+                for _ref in _tm['xref']:
+                    print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
+            if _hv['java_b64']:
                 print("\t\tJavaSource code:")
-                print("{:s}".format(base64.b64decode(_hv['java_b64'])))
+                print(f"{base64.b64decode(_hv['java_b64']).decode()}")
 
     if len(_result['allowallhostnameverifier']) > 0:
         if len(_result['allowallhostnameverifier']) == 1:
@@ -276,8 +281,8 @@ def _print_result(_result, _java=True):
 
         for _or in _result['onreceivedsslerror']:
             _class_name = _translate_class_name(_or['class'].get_name())
-            if _or['xref'] is None:
-                for _ref in _aa['xref']:
+            if _or['xref'] is not None:
+                for _ref in _or['xref']:
                     print("\t\tReferenced in method {:s}->{:s}".format(_translate_class_name(_ref.get_class_name()), _ref.get_name()))
             if _or['java_b64']:
                 print("\t\tJavaSource code:")
