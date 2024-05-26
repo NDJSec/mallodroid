@@ -124,10 +124,11 @@ def _check_trust_manager(_method, _vm, _vmx):
     if _has_signature(_method, [_check_server_trusted]):
         _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
         for _class in _classes:
-            if _class_implements_interface(_class, _trustmanager_interfaces):
-                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-                _empty = _returns_true(_method) or _returns_void(_method)
-                _custom_trust_manager.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
+            if _class is not None:
+                if _class_implements_interface(_class, _trustmanager_interfaces):
+                    _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                    _empty = _returns_true(_method) or _returns_void(_method)
+                    _custom_trust_manager.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
     if _instantiates_get_insecure_socket_factory(_method):
         _class = _vm.get_class(_method.get_class_name())
         _java_b64, _xref = _get_javab64_xref(_class, _vmx)
@@ -149,15 +150,17 @@ def _check_hostname_verifier(_method, _vm, _vmx):
     if _has_signature(_method, [_verify_string_sslsession, _verify_string_x509cert, _verify_string_sslsocket, _verify_string_subj_alt]):
         _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
         for _class in _classes:
-            if _class_implements_interface(_class, _verifier_interfaces) or _class_extends_class(_class, _verifier_classes):
-                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-                _empty = _returns_true(_method) or _returns_void(_method)
-                _custom_hostname_verifier.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
+            if _class is not None:
+                if _class_implements_interface(_class, _verifier_interfaces) or _class_extends_class(_class, _verifier_classes):
+                    _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                    _empty = _returns_true(_method) or _returns_void(_method)
+                    _custom_hostname_verifier.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
     if _instantiates_allow_all_hostname_verifier(_method):
         _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
         for _class in _classes:
-            _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-            _allow_all_hostname_verifier.append({'class' : _class, 'method' : _method, 'java_b64' : _java_b64})
+            if _class is not None:
+                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                _allow_all_hostname_verifier.append({'class' : _class, 'method' : _method, 'java_b64' : _java_b64})
 
     return _custom_hostname_verifier, _allow_all_hostname_verifier
 
@@ -169,10 +172,11 @@ def _check_ssl_error(_method, _vm, _vmx):
     if _has_signature(_method, [_on_received_ssl_error]):
         _classes = [_classes.get_class(_method.get_class_name()) for _classes in _vm]
         for _class in _classes:
-            if _class_extends_class(_class, _webviewclient_classes) or True:
-                _java_b64, _xref = _get_javab64_xref(_class, _vmx)
-                _empty = _returns_true(_method) or _returns_void(_method)
-                _custom_on_received_ssl_error.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
+            if _class is not None:
+                if _class_extends_class(_class, _webviewclient_classes) or True:
+                    _java_b64, _xref = _get_javab64_xref(_class, _vmx)
+                    _empty = _returns_true(_method) or _returns_void(_method)
+                    _custom_on_received_ssl_error.append({'class' : _class, 'xref' : _xref, 'java_b64' : _java_b64, 'empty' : _empty})
 
     return _custom_on_received_ssl_error
 
